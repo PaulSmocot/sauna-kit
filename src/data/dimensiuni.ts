@@ -5,7 +5,9 @@ export const E = 0.0375;            // retragerea cadrului față de marginea ex
 export const FB = 0.03;             // cadrul podelei: jos
 export const FT = 0.13;             // cadrul podelei: sus
 export const F = 0.148;             // fața podelei (OSB 18)
-export const HT = F + 2.06;         // vârful pereților
+export const FF = F + 0.028;        // fața gresiei în interior (fibrociment 10 + hidroizolație + adeziv + gresie)
+export const SFX = 0.98, SFZ = 1.55; // poziția sifonului
+export const HT = F + 2.06;        // vârful pereților
 export const YJ = HT + 0.10;        // vârful grinzilor de tavan
 export const YT = YJ + 0.012;       // vârful OSB 12
 export const I0 = 0.1755;           // fața interioară (stânga / spate)

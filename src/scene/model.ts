@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { E, FB, FT, F, HT, YJ, YT, I0, I1, CI, DX0, DX1, DY0, DY1, JX, PZ, GZ, ST } from '../data/dimensiuni';
+import { E, FB, FT, F, FF, SFX, SFZ, HT, YJ, YT, I0, I1, CI, DX0, DX1, DY0, DY1, JX, PZ, GZ, ST } from '../data/dimensiuni';
 import { PASI } from '../data/pasi';
 import { makeTextures, fixBoxUV, TexSet } from './textures';
 
@@ -41,6 +41,7 @@ export const info = (o: THREE.Object3D) => o.userData as MeshInfo;
 
 // ---------- materiale ----------
 type MatKey = 'pad' | 'bitum' | 'treated' | 'timber' | 'osb' | 'insul' | 'foil' | 'lamb' | 'bench' | 'frame' | 'clad' | 'membrane'
+  | 'plywood' | 'cement' | 'hidro' | 'tile' | 'pipe'
   | 'stove' | 'stoveDark' | 'stone' | 'cable' | 'vent' | 'glass' | 'lamp' | 'screw' | 'staple';
 interface MatDef { c: number; r: number; mt?: number; op?: number; em?: number; tex?: keyof TexSet }
 const BASE: Record<MatKey, MatDef> = {
@@ -48,6 +49,8 @@ const BASE: Record<MatKey, MatDef> = {
   timber: { c: 0xD6AC72, r: .8, tex: 'grain' }, osb: { c: 0xCBA466, r: .9, tex: 'osb' }, insul: { c: 0xE8C552, r: 1, tex: 'fibers' },
   foil: { c: 0xD2D8DC, r: .3, mt: .9 }, lamb: { c: 0xEED7AC, r: .75, tex: 'grainFine' }, bench: { c: 0xF4E6C8, r: .7, tex: 'grainFine' },
   frame: { c: 0xDDB680, r: .75, tex: 'grain' }, clad: { c: 0x8A5A37, r: .8, tex: 'grainFine' }, membrane: { c: 0xE9EDEF, r: .9, tex: 'fibers' },
+  plywood: { c: 0x74503A, r: .45, tex: 'grainFine' }, cement: { c: 0xA7A8A2, r: .95 }, hidro: { c: 0x8C97A0, r: .9 },
+  tile: { c: 0xE4D6BE, r: .55, tex: 'grainFine' }, pipe: { c: 0xB9BDC1, r: .5 },
   stove: { c: 0xA6ABB0, r: .3, mt: .85 }, stoveDark: { c: 0x2A2C2F, r: .5, mt: .5 }, stone: { c: 0x6E6B66, r: .95 },
   cable: { c: 0xE2782C, r: .6 }, vent: { c: 0x3A3F43, r: .8 }, glass: { c: 0x8A6A45, r: .1, op: .45 },
   lamp: { c: 0xFFE2B0, r: .5, em: 0xFFC878 }, screw: { c: 0x8C949B, r: .35, mt: .9 }, staple: { c: 0x5B6268, r: .4, mt: .8 }
@@ -57,12 +60,12 @@ export const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 10);
 
 // explodare pe pas: [în afară (m), în sus (m)]
 const EXPL: [number, number][] = [
-  [0, -0.75], [0, -0.6], [0, -0.42], [0, -0.42], [0, -0.22], [0, 0],
+  [0, -0.75], [0, -0.6], [0, -0.42], [0, -0.42], [0, -0.3], [0, -0.22], [0, 0],
   [0, 0], [0, 0], [0, 0], [0, 0], [0, 0.35],
-  [0.3, 0], [0.55, 0], [0.85, 0], [0, 0.75], [0, 0],
-  [0, 0], [0, 0.35], [-0.1, -0.1], [0, -0.25], [0, -0.45],
+  [0.3, 0], [0.55, 0], [0.85, 0], [0, 0.75], [0, 1.0], [0, 0],
+  [0, 0], [0, 0.35], [-0.1, -0.1], [0, 0.25], [0, -0.25], [0, -0.45],
   [-0.12, 0], [-0.22, 0], [-0.22, 0], [0, 0], [0, 0], [0, 0], [0, 0],
-  [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]
+  [0, 0], [0, 0], [0, 0], [0, 0.3], [0, 0], [0, 0]
 ];
 
 export function wallNormal(c: THREE.Vector3): THREE.Vector3 | null {
@@ -252,11 +255,21 @@ export function buildModel(root: THREE.Group) {
     [JX[1], JX[2]].forEach(x => { box(x, x + 0.05, FB, FT, 0.0875, 1.9125, 'treated'); [0.06, 0.10].forEach(y => { screw(x + 0.025, y, E - 0.002, 'z', '', -1); screw(x + 0.025, y, 2 - E + 0.002, 'z', '', 1); }); lab('P2', x + 0.025, 0.2, 1); });
     tool({ tip: 'ruleta', din: V(E, FT + 0.004, E), la: V(2 - E, FT + 0.004, 2 - E), text: 'diagonala 2722 mm', cand: 'post' });
   });
-  // 5 vată podea
+  // țeava de scurgere
+  B.push(() => {
+    tool({ tip: 'ruleta', din: V(0, FT + 0.004, SFZ), la: V(SFX, FT + 0.004, SFZ), text: '980 mm', cand: 'pre' });
+    tool({ tip: 'ruleta', din: V(SFX, FT + 0.004, 0), la: V(SFX, FT + 0.004, SFZ), text: '1550 mm', cand: 'pre' });
+    C('TS');
+    const r = 0.025, y = 0.08;
+    const run = addMesh(new THREE.CylinderGeometry(r, r, 2.2 - SFZ, 16), 'pipe'); run.rotation.x = Math.PI / 2; run.position.set(SFX, y, (SFZ + 2.2) / 2); finish(run);
+    const up = addMesh(new THREE.CylinderGeometry(r, r, FT - y, 16), 'pipe'); up.position.set(SFX, (y + FT) / 2, SFZ); finish(up);
+    lab('TS', SFX, 0.2, 1.8);
+  });
+  // vată podea
   B.push(() => { C('V'); [[0.0875, 0.65], [0.70, 1.2625], [1.3125, 1.9125]].forEach(([a, b]) => box(a + 0.002, b - 0.002, 0.035, 0.127, 0.09, 1.91, 'insul')); lab('V', 0.37, 0.18, 1); });
   // 6 OSB podea
   B.push(() => {
-    C('O1'); box(E, 1.2875, FT, F, E, 2 - E, 'osb'); C('O2'); box(1.2875, 2 - E, FT, F, E, 2 - E, 'osb');
+    C('O1'); box(E, 1.2875, FT, F, E, 2 - E, 'plywood'); C('O2'); box(1.2875, 2 - E, FT, F, E, 2 - E, 'plywood');
     JX.forEach(x => { for (let z = 0.1; z < 1.95; z += 0.15) screw(x + 0.025, F + 0.002, z, 'y'); });
     for (let x = 0.15; x < 1.9; x += 0.15) { screw(x, F + 0.002, 0.0625, 'y'); screw(x, F + 0.002, 1.9375, 'y'); }
     lab('O1', 0.66, F + 0.08, 1); lab('O2', 1.62, F + 0.08, 1);
@@ -314,6 +327,16 @@ export function buildModel(root: THREE.Group) {
     [0.0875, 1.9125].forEach(x => [0.35, 0.95, 1.55].forEach(z => screw(x, YT + 0.002, z, 'y', 'roof')));
     lab('O3', 1, YT + 0.06, 0.64, 'roof'); lab('O4', 1, YT + 0.06, 1.63, 'roof');
   });
+  // lambriu deasupra
+  B.push(() => {
+    const y1 = YT + 0.024, y2 = y1 + 0.0125;
+    C('S4'); GZ.forEach(z => { box(0.0125, 1.9875, YT, y1, z + 0.001, z + 0.049, 'timber', 'roof'); for (let x = 0.2; x < 1.9; x += 0.4) screw(x, y1 + 0.002, z + 0.025, 'y', 'roof'); });
+    C('LS'); for (let x = 0.0125; x < 1.9875 - 1e-6; x += 0.088) box(x, Math.min(x + 0.086, 1.9875), y1, y2, 0.0125, 1.9875, 'clad', 'roof');
+    C('BS');
+    box(0, 2, YT, YT + 0.04, 0, 0.0125, 'clad', 'roof'); box(0, 2, YT, YT + 0.04, 1.9875, 2, 'clad', 'roof');
+    box(0, 0.0125, YT, YT + 0.04, 0.0125, 1.9875, 'clad', 'roof'); box(1.9875, 2, YT, YT + 0.04, 0.0125, 1.9875, 'clad', 'roof');
+    lab('LS', 1, y2 + 0.06, 1, 'roof'); lab('S4', 0.25, y2 + 0.05, GZ[0] + 0.025, 'roof'); lab('BS', 1, YT + 0.08, 2.01, 'roof');
+  });
   // 16 electric + aerisire
   B.push(() => {
     const T = 0.018;
@@ -347,6 +370,19 @@ export function buildModel(root: THREE.Group) {
     [0.6, 1.4].forEach(z => pts.push([0.139, 1.2, z, 1, 0, 0]));
     stapler(pts);
   });
+  // pardoseala: fibrociment, hidroizolație, gresie, sifon
+  B.push(() => {
+    C('FC'); box(I0, I1, F, F + 0.01, I0, I0 + 1.25, 'cement'); box(I0, I1, F, F + 0.01, I0 + 1.25, I1, 'cement');
+    for (let x = I0 + 0.1; x < I1 - 0.05; x += 0.2) for (let z = I0 + 0.1; z < I1 - 0.05; z += 0.2) screw(x, F + 0.012, z, 'y');
+    C('FP'); layer(0.139, 0.149, F + 0.01, F + 0.11, 'cement', undefined, 0, WALLS, true);
+    C('HI'); box(I0, I1, F + 0.01, F + 0.0185, I0, I1, 'hidro');
+    C('GS');
+    for (let x = I0; x < I1 - 1e-6; x += 0.3) for (let z = I0; z < I1 - 1e-6; z += 0.6)
+      box(x + 0.0015, Math.min(x + 0.3, I1) - 0.0015, F + 0.0185, FF, z + 0.0015, Math.min(z + 0.6, I1) - 0.0015, 'tile');
+    C('SF'); box(SFX - 0.0525, SFX + 0.0525, FF, FF + 0.002, SFZ - 0.0525, SFZ + 0.0525, 'stove');
+    lab('GS', 1.35, FF + 0.06, 0.6); lab('SF', SFX, FF + 0.07, SFZ); lab('FP', 1.0, F + 0.14, 0.16);
+    tool({ tip: 'nivela', poz: V(1.3, FF + 0.0175, 1.0), axa: 'x', cand: 'post' });
+  });
   // 20 șipci tavan
   B.push(() => {
     C('S3'); [0.18, 0.55, 0.92, 1.29, 1.775].forEach(x => {
@@ -360,6 +396,7 @@ export function buildModel(root: THREE.Group) {
   B.push(() => { C('LI'); for (let z = I0; z < I1 - 1e-6; z += 0.088) box(I0, I1, CI, HT - 0.0255, z, Math.min(z + 0.086, I1), 'lamb', 'ceil'); lab('LI', 1, CI - 0.04, 1, 'ceil'); });
   // 22 șipci pereți
   B.push(() => {
+    const F = FF;
     C('S2');
     const pos: Record<Wall, number[]> = { back: [0.139, 0.6675, 1.2975, 1.813], left: [0.163, 0.7675, 1.3975, 1.789], right: [0.163, 0.7675, 1.3975, 1.789], front: [0.139, 0.5, 0.97, 1.74, 1.813] };
     battens(pos, 0.139, 0.163, F, CI, 'timber');
@@ -367,11 +404,12 @@ export function buildModel(root: THREE.Group) {
     lab('S2', 0.69, 1.2, 0.15); lab('S2', 0.15, 1.2, 0.79);
   });
   // 23 lambriu pereți spate, stânga, dreapta
-  B.push(() => { C('LI'); layer(0.163, 0.1755, F + 0.005, CI, 'lamb', 0.088, 0.002, ['back', 'left', 'right'], true); lab('LI', 1, 1.2, 0.19); lab('LI', 0.19, 1.2, 0.6); });
+  B.push(() => { C('LI'); layer(0.163, 0.1755, FF + 0.005, CI, 'lamb', 0.088, 0.002, ['back', 'left', 'right'], true); lab('LI', 1, 1.2, 0.19); lab('LI', 0.19, 1.2, 0.6); });
   // 24 lambriu față
-  B.push(() => { C('LI'); layer(0.163, 0.1755, F + 0.005, CI, 'lamb', 0.088, 0.002, ['front'], true); lab('LI', 0.6, 1.2, 1.81, 'front'); });
+  B.push(() => { C('LI'); layer(0.163, 0.1755, FF + 0.005, CI, 'lamb', 0.088, 0.002, ['front'], true); lab('LI', 0.6, 1.2, 1.81, 'front'); });
   // 25 cadru bancă sus
   B.push(() => {
+    const F = FF;
     const y0 = F + 0.924, y1 = F + 0.972;
     C('L1'); box(I0, I1, y0, y1, I0, I0 + 0.048, 'frame'); box(I0, I1, y0, y1, 0.7275, 0.7755, 'frame');
     [I0, 0.976, I1 - 0.048].forEach(x => { C('L2'); box(x, x + 0.048, y0, y1, I0 + 0.048, 0.7275, 'frame'); C('L3'); box(x, x + 0.048, F, y0, 0.7275, 0.7755, 'frame'); });
@@ -381,9 +419,10 @@ export function buildModel(root: THREE.Group) {
     tool({ tip: 'nivela', poz: V(1.0, y1 + 0.0175, 0.7515), axa: 'x', cand: 'post' });
   });
   // 26 șipci bancă sus
-  B.push(() => { C('Ș1'); for (let i = 0; i < 6; i++) { const z = I0 + 0.01 + i * 0.1; box(I0, I1, F + 0.972, F + 1.0, z, z + 0.09, 'bench'); } lab('Ș1', 1.3, F + 1.06, 0.5); });
+  B.push(() => { const F = FF; C('Ș1'); for (let i = 0; i < 6; i++) { const z = I0 + 0.01 + i * 0.1; box(I0, I1, F + 0.972, F + 1.0, z, z + 0.09, 'bench'); } lab('Ș1', 1.3, F + 1.06, 0.5); });
   // 27 bancă jos
   B.push(() => {
+    const F = FF;
     tool({ tip: 'ruleta', din: V(I0, F + 0.51, 0.98), la: V(0.80, F + 0.51, 0.98), text: 'aprox. 625 mm', cand: 'pre' });
     const y0 = F + 0.424, y1 = F + 0.472;
     C('L4'); box(0.80, I1, y0, y1, 0.7755, 0.8235, 'frame'); box(0.80, I1, y0, y1, 1.1275, 1.1755, 'frame');
@@ -393,6 +432,7 @@ export function buildModel(root: THREE.Group) {
   });
   // 28 spătar
   B.push(() => {
+    const F = FF;
     C('Ș3'); [1.25, 1.42].forEach(h => { box(I0, I1, F + h, F + h + 0.09, I0, I0 + 0.028, 'bench'); [0.33, 0.69, 1.32, 1.68].forEach(x => screw(x, F + h + 0.045, I0 + 0.03, 'z', '', 1)); });
     lab('Ș3', 1.0, F + 1.38, 0.22);
   });
@@ -409,6 +449,7 @@ export function buildModel(root: THREE.Group) {
   });
   // 30 soba
   B.push(() => {
+    const F = FF;
     C('SB');
     box(I0 + 0.005, I0 + 0.03, F + 0.12, F + 0.62, 1.33, 1.57, 'stoveDark');
     box(I0 + 0.03, I0 + 0.31, F + 0.15, F + 0.69, 1.21, 1.69, 'stove');
@@ -421,13 +462,25 @@ export function buildModel(root: THREE.Group) {
   });
   // 31 parapet
   B.push(() => {
+    const F = FF;
     C('Ș6'); box(0.56, 0.59, F, F + 0.85, 1.12, 1.21, 'bench'); box(0.56, 0.59, F, F + 0.85, 1.69, 1.78, 'bench');
     C('Ș4'); [0.35, 0.70].forEach(y => { box(0.59, 0.618, F + y, F + y + 0.09, 1.15, 1.75, 'bench'); [1.165, 1.735].forEach(z => screw(0.62, F + y + 0.045, z, 'x', '', 1)); });
     C('Ș5'); box(I0, 0.56, F + 0.70, F + 0.79, 1.12, 1.148, 'bench'); box(I0, 0.56, F + 0.70, F + 0.79, 1.752, 1.78, 'bench');
     lab('Ș6', 0.575, F + 0.2, 1.165); lab('Ș4', 0.61, F + 0.53, 1.45); lab('Ș5', 0.37, F + 0.84, 1.13);
   });
+  // grătar de lemn
+  B.push(() => {
+    const F = FF;
+    C('GT');
+    [0.60, 1.20].forEach(x0 => {
+      [0.04, 0.46].forEach(o => box(x0 + o, x0 + o + 0.09, F, F + 0.028, 1.20, 1.80, 'bench'));
+      for (let i = 0; i < 6; i++) { const z = 1.20 + i * 0.102; box(x0, x0 + 0.59, F + 0.028, F + 0.056, z, z + 0.09, 'bench'); }
+    });
+    lab('GT', 0.9, F + 0.12, 1.5); lab('GT', 1.5, F + 0.12, 1.5);
+  });
   // 32 grile, lampă
   B.push(() => {
+    const F = FF;
     C('GR'); box(I0, I0 + 0.015, F + 0.04, F + 0.20, 1.70, 1.82, 'bench'); box(I1 - 0.015, I1, F + 0.72, F + 0.88, 0.29, 0.46, 'bench');
     C('LP'); box(1.765, I1, F + 1.74, F + 1.88, 0.94, 1.06, 'bench'); box(1.755, 1.77, F + 1.76, F + 1.86, 0.96, 1.04, 'lamp');
     const glow = new THREE.PointLight(0xffc078, 0.6, 3.2, 1.5); glow.position.set(1.6, F + 1.8, 1.0); steps[bs].group.add(glow);
@@ -435,6 +488,7 @@ export function buildModel(root: THREE.Group) {
   });
   // 33 prima încălzire
   B.push(() => {
+    const F = FF;
     const heat = new THREE.PointLight(0xff7a2a, 0, 2.2, 1.6); heat.position.set(I0 + 0.18, F + 0.85, 1.45);
     steps[bs].group.add(heat); steps[bs].flicker = heat;
   });

@@ -14,25 +14,33 @@ export const TAIERE: GrupTaiere[] = [
     ['R13', 'G + G', '1925 + 1925'],
     ['R14', 'G + T2a + B + T2b', '1925 + 982 + 720 + 222'],
     ['R15–R18', 'T3 + P2', '1725 + 1825']] },
-  { titlu: 'Riglă 24 × 48 × 3000 mm, 34 bucăți', randuri: [['17 buc.', 'S1', '2276, rest 720'], ['17 buc.', 'S2', '2022, rest 975']] },
-  { titlu: 'Riglă 24 × 48 × 4000 mm, 3 bucăți', randuri: [['3 buc.', 'S3 + S3', '1649 + 1649 (iese una în plus)']] },
+  { titlu: 'Riglă 24 × 48 × 3000 mm, 34 bucăți', randuri: [['17 buc.', 'S1', '2276, rest 720'], ['17 buc.', 'S2', '1994, rest 1006']] },
+  { titlu: 'Riglă 24 × 48 × 4000 mm, 5 bucăți', randuri: [['3 buc.', 'S3 + S3', '1649 + 1649 (iese una în plus)'], ['2 buc.', 'S4 + S4', '1975 + 1975']] },
   { titlu: 'Riglă 48 × 48 × 4000 mm, 3 bucăți', randuri: [
     ['LA', 'L1 + L1 + L2', '1649 + 1649 + 504'],
     ['LB', 'L3 + L3 + L3 + L4', '924 × 3 + 1025'],
     ['LC', 'L4 + L2 + L2 + L5 + L5 + L6 + L6', '1025 + 504 × 2 + 304 × 2 + 424 × 2']] },
-  { titlu: 'Plop 28 × 90 × 2700 mm, 8 bucăți', randuri: [
+  { titlu: 'Plop 28 × 90 × 2700 mm, 12 bucăți', randuri: [
     ['PL1–PL4', 'Ș1 + Ș2', '1649 + 1025'],
     ['PL5–PL6', 'Ș1 + Ș4 + Ș5', '1649 + 600 + 380'],
-    ['PL7–PL8', 'Ș3 + Ș6', '1649 + 850']] },
-  { titlu: 'OSB 2500 × 1250 mm', randuri: [
-    ['Placa 1, 18 mm', 'O1', '1925 × 1250'],
-    ['Placa 2, 18 mm', 'O2', '1925 × 675'],
-    ['Placa 3, 12 mm', 'O3', '1975 × 1250'],
-    ['Placa 4, 12 mm', 'O4', '1975 × 725']] },
+    ['PL7–PL8', 'Ș3 + Ș6', '1649 + 850'],
+    ['PL9–PL11', 'șipci GT', '590 × 4, rest 340'],
+    ['PL12', 'rigle GT', '600 × 4, rest 300']] },
+  { titlu: 'Placaj filmat 18 mm, 2500 × 1250 mm', randuri: [
+    ['Placa 1', 'O1', '1925 × 1250'],
+    ['Placa 2', 'O2', '1925 × 675']] },
+  { titlu: 'OSB 12 mm, 2500 × 1250 mm', randuri: [
+    ['Placa 3', 'O3', '1975 × 1250'],
+    ['Placa 4', 'O4', '1975 × 725']] },
+  { titlu: 'Fibrociment 10 mm, 2500 × 1250 mm', randuri: [
+    ['Placa 5', 'FC', '1649 × 1250'],
+    ['Placa 6', 'FC + FP', '1649 × 399, apoi din rest fâșii de 100 mm: 3 × 1649, plus 845 și 85']] },
   { titlu: 'Lambriu interior 2500 mm, 10 pachete', randuri: [['89 scânduri', '1649 + rest', 'din 22 de resturi tai 845 mm, din alte 22 tai 85 mm']] },
-  { titlu: 'Lambriu exterior 4000 mm, 6 pachete', randuri: [
+  { titlu: 'Lambriu exterior 4000 mm, 7 pachete', randuri: [
     ['41 scânduri', '2000 + 2000', 'pe laterale le scurtezi la 1975'],
-    ['8 scânduri', '1020 × 3 + 260 × 3', 'rândurile din dreptul ușii']] }
+    ['8 scânduri', '1020 × 3 + 260 × 3', 'rândurile din dreptul ușii'],
+    ['12 scânduri', 'LS + LS', '1975 + 1975 (iese una în plus)'],
+    ['2 scânduri', 'BS + BS', '2000 + 2000, tăiate pe lungime la 40 mm']] }
 ];
 
 export const INTRO_TAIERE = 'Fiecare rând arată din ce bucată cumpărată tai ce piese. Codurile sunt aceleași ca în pașii de montaj și pe modelul 3D.';

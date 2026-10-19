@@ -63,6 +63,8 @@ function showCard(d: MeshInfo | null) {
     const p = PIESE[d.code];
     h += `<div class="ccode">${esc(d.code)}</div><div class="cname">${esc(p?.nume || '')}</div>`;
     h += `<dl><dt>Dimensiune</dt><dd>${esc(p?.dim || '–')}</dd><dt>Se ia din</dt><dd>${esc(p?.taieDin || '–')}</dd></dl>`;
+    if (p?.link) h += `<a class="buybtn" href="${esc(p.link)}" target="_blank" rel="noopener">Cumpără de la ${esc(p.magazin || 'magazin')} ↗</a>`;
+    else if (p?.magazin) h += `<div class="muted cshop">Se cumpără de la: ${esc(p.magazin)}</div>`;
   }
   h += `<button class="linkbtn" id="cardgo">Pasul ${d.step + 1}: ${esc(pas.titlu)} ›</button>`;
   card.innerHTML = h; card.hidden = false;

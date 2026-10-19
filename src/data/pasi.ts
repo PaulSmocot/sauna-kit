@@ -1,5 +1,7 @@
 // Pașii de montaj. Textele vin din fișierul original sauna-3d.html.
-// Corecturi aprobate: pasul 10 (golul ușii), pasul 20 (ultima șipcă S3), pasul 27 (poziția băncii de jos).
+// Corecturi aprobate: golul ușii, ultima șipcă S3, poziția băncii de jos.
+// Modificări aprobate (oct. 2026): podea din placaj filmat cu fibrociment, hidroizolație, gresie și sifon;
+// lambriu deasupra plăcii de sus; grătar de lemn; relee smart Shelly pentru sobă și lampă.
 export interface Pas {
   faza: string;
   titlu: string;
@@ -24,14 +26,21 @@ export const PASI: Pas[] = [
     'Pe fiecare P1 măsori din stânga 612 mm și 1225 mm: acolo vine fața din stânga a celor două grinzi P2 rămase. Le prinzi la fel, cu câte două șuruburi la fiecare capăt.',
     'Măsori din nou diagonalele: amândouă trebuie să aibă 2722 mm. Dacă diferă, împingi de colțuri până se egalează.'],
     piese: [['P2', 2]], prinderi: ['8 șuruburi 5 × 100 mm'] },
+  { faza: 'Podea', titlu: 'Țeava de scurgere', text: [
+    'Sifonul vine în fața băncii de jos, la 980 mm de marginea din stânga și 1550 mm de marginea din spate, între grinzile a doua și a treia.',
+    'De acolo duci țeava TS de Ø 50 mm printre grinzi, spre față, cu pantă de cel puțin 2 % (2 cm pe metru). Dai o gaură de 55 mm prin mijlocul grinzii P1 din față și scoți țeava afară, apoi o duci până la o rigolă sau într-un puț cu pietriș, departe de suporți.'],
+    piese: [['TS', 1]], prinderi: ['un cot de 45° Ø 50 mm', 'coliere pentru țeavă'],
+    nota: 'Capătul dinspre sifon îl astupi cu bandă până montezi sifonul, ca să nu intre nimic în țeavă.' },
   { faza: 'Podea', titlu: 'Vata din podea', text: [
     'Pe fețele interioare ale grinzilor bați resturi de șipcă la 5 mm de muchia de jos, ca să țină vata.',
     'Tai vata cu 1 cm mai lată decât golul (aprox. 570 și 610 mm) și o așezi în cele trei goluri, strânsă, fără spații.'],
     piese: [['V', 1]], prinderi: ['resturi de șipcă și cuie de 40 mm'] },
   { faza: 'Podea', titlu: 'Placa podelei', text: [
     'Așezi placa O1 în stânga și O2 în dreapta, cu latura lungă pe direcția față-spate. Îmbinarea lor cade pe mijlocul grinzii a treia.',
-    'Înșurubezi la 15 cm pe fiecare grindă, cu șuruburi 4 × 50 mm, la 1 cm de marginea plăcii.'],
-    piese: [['O1', 1], ['O2', 1]], prinderi: ['aprox. 80 șuruburi 4 × 50 mm'] },
+    'Înșurubezi la 15 cm pe fiecare grindă, cu șuruburi 4 × 50 mm, la 1 cm de marginea plăcii.',
+    'În dreptul sifonului tai în placă o gaură cât corpul sifonului, cu ferăstrăul pendular.'],
+    piese: [['O1', 1], ['O2', 1]], prinderi: ['aprox. 80 șuruburi 4 × 50 mm'],
+    nota: 'Placajul filmat e mai rigid decât OSB-ul și nu se umflă dacă se udă. Peste el, în interior, vine pardoseala cu gresie, după ce pui folia.' },
   { faza: 'Pereți', titlu: 'Peretele din spate', text: [
     'Pe podea asamblezi culcat: talpa de jos T1, talpa de sus T1 și 4 montanți M. Pe ambele tălpi trasezi fața din stânga a montanților la 0, 630, 1260 și 1875 mm.',
     'Fiecare capăt de montant se prinde cu două șuruburi 5 × 100 mm trecute prin talpă. Ridici peretele pe muchia din spate a podelei și prinzi talpa de jos în podea cu șuruburi 6 × 120 mm, la 40 cm unul de altul.'],
@@ -64,6 +73,11 @@ export const PASI: Pas[] = [
     piese: [['LE', 1], ['CL', 8]], prinderi: ['clame pentru lambriu 12,5 mm și cuie mici', 'cuie inox pentru șipcile de colț'] },
   { faza: 'Exterior', titlu: 'Placa de deasupra', text: ['Peste grinzile tavanului înșurubezi O3 în spate și O4 în față. Îmbinarea lor cade pe grinda a treia. Folosești șuruburi 4 × 40 mm, la 20 cm unul de altul.'],
     piese: [['O3', 1], ['O4', 1]], prinderi: ['aprox. 50 șuruburi 4 × 40 mm'] },
+  { faza: 'Exterior', titlu: 'Lambriul de deasupra', text: [
+    'Peste placa de sus bați 4 șipci S4 pe direcția stânga-dreapta, exact deasupra grinzilor tavanului. Le prinzi cu șuruburi 4 × 60 mm prin OSB în grinzi, la 40 cm.',
+    'Pe șipci pui 23 de scânduri LS de 1975 mm pe direcția față-spate, prinse cu câte o clamă pe fiecare șipcă. Ultima scândură o tai pe lățime.',
+    'Pe margini bați bordura BS: 4 fâșii de lambriu de 40 mm, tăiate pe lungime, care acoperă capetele șipcilor și ale scândurilor. La final dai două straturi de lazură, ca la pereți.'],
+    piese: [['S4', 4], ['LS', 23], ['BS', 4]], prinderi: ['aprox. 40 șuruburi 4 × 60 mm', 'aprox. 92 clame', 'cuie inox mici pentru bordură'] },
   { faza: 'Instalații', titlu: 'Cabluri și găuri de aerisire', text: [
     'Electricianul trage cablul sobei prin peretele din stânga, până în spatele locului sobei, și cablul lămpii până pe peretele din dreapta. Montanții se găuresc pe mijloc.',
     'Tai cele două goluri de aerisire: intrarea aerului jos pe peretele din stânga, lângă sobă, și evacuarea pe peretele din dreapta, sub banca de sus. Pozițiile exacte le verifici în manualul sobei.'],
@@ -78,13 +92,21 @@ export const PASI: Pas[] = [
     'Toate îmbinările și găurile pentru cabluri le lipești cu bandă de aluminiu. Folia trebuie să fie continuă, fără nicio gaură.'],
     piese: [['FA', 1]], prinderi: ['capse de 8 mm', 'bandă de aluminiu'],
     nota: 'Folia trebuie să fie de aluminiu adevărat, pentru saună. Foliile de construcții aluminizate rezistă de obicei doar până la 80 °C.', avertisment: true },
+  { faza: 'Podea', titlu: 'Pardoseala cu gresie și sifon', text: [
+    'Pe placaj, în interior, pui cele două plăci de fibrociment FC, lipite cu adeziv și înșurubate la 20 cm. Pe pereți, peste folie, înșurubezi în montanți fâșiile FP, lipite de podea, ca hidroizolația să urce 10 cm pe perete.',
+    'Montezi sifonul SF în gaură, îl legi la țeava de scurgere și îi reglezi înălțimea la fața gresiei.',
+    'Dai hidroizolația HI în două straturi, în cruce, pe toată podeaua și pe fâșiile de pe perete. În colțuri și în jurul sifonului lipești în primul strat banda de etanșare.',
+    'După 24 de ore lipești gresia GS cu adeziv flexibil, cu pantă de aprox. 1 % spre sifon: adezivul e mai gros la margini, cel mult 10 mm. Rosturile le umpli cu chit flexibil.'],
+    piese: [['FC', 2], ['FP', 5], ['SF', 1], ['HI', 1], ['GS', 1]],
+    prinderi: ['șuruburi pentru fibrociment 4,2 × 35 mm', 'bandă de etanșare Ceresit CL 152', 'adeziv flexibil C2TE S1 (Ceresit CM 17)', 'chit de rosturi flexibil'],
+    nota: 'Pardoseala finită iese cu aprox. 28 mm mai sus decât placajul. De aici înainte, toate cotele „de la podea” se măsoară de la gresie. Acoperă gresia cu carton cât lucrezi mai departe.' },
   { faza: 'Interior', titlu: 'Șipcile tavanului', text: ['5 șipci S3 pe direcția față-spate, la 5, 375, 745, 1115 și 1600 mm de fața interioară a peretelui din stânga. Le înșurubezi prin folie în grinzile tavanului, cu șuruburi 4 × 60 mm.'],
     piese: [['S3', 5]], prinderi: ['20 șuruburi 4 × 60 mm'] },
   { faza: 'Interior', titlu: 'Lambriul tavanului', text: ['19 scânduri de 1649 mm pe direcția stânga-dreapta. Începi de la peretele din spate și prinzi fiecare scândură cu câte o clamă pe fiecare șipcă.'],
     piese: [['LI', 19]], prinderi: ['aprox. 95 clame'] },
   { faza: 'Interior', titlu: 'Șipcile pereților', text: ['17 șipci S2 verticale peste montanți, prin folie, de la podea până la lambriul tavanului. Le prinzi cu șuruburi 4 × 60 mm la 50 cm. Ele lasă un strat de aer între folie și lambriu.'],
     piese: [['S2', 17]], prinderi: ['aprox. 85 șuruburi 4 × 60 mm'] },
-  { faza: 'Interior', titlu: 'Lambriul pereților', text: ['Pe peretele din spate și pe cele laterale pui câte 23 de rânduri de 1649 mm, de jos în sus, cu lamba în sus. Primul rând îl lași la 5 mm de podea.'],
+  { faza: 'Interior', titlu: 'Lambriul pereților', text: ['Pe peretele din spate și pe cele laterale pui câte 23 de rânduri de 1649 mm, de jos în sus, cu lamba în sus. Primul rând îl lași la 5 mm de gresie, iar ultimul îl tai pe lățime.'],
     piese: [['LI', 69]], prinderi: ['aprox. 280 clame'] },
   { faza: 'Interior', titlu: 'Lambriul peretelui din față', text: ['În dreptul ușii fiecare rând are o bucată de 845 mm în stânga și una de 85 mm în dreapta, tăiate din resturile scândurilor de 2,5 m. Peste ușă pui un rând întreg de 1649 mm.'],
     piese: [['LI', 45]], prinderi: ['aprox. 120 clame'] },
@@ -110,11 +132,16 @@ export const PASI: Pas[] = [
     piese: [['SB', 1], ['PT', 1]], prinderi: ['șuruburile din pachetul sobei'] },
   { faza: 'Final', titlu: 'Parapetul sobei', text: ['Cei doi stâlpi Ș6 se prind în podea și în bara de jos, la 75 mm în fața sobei. Între ei pui două bare Ș4, iar de la stâlpi la perete două bare laterale Ș5. Distanța minimă față de sobă o verifici în manual.'],
     piese: [['Ș6', 2], ['Ș4', 2], ['Ș5', 2]], prinderi: ['12 șuruburi inox 4 × 50 mm', '2 colțare mici pentru podea'] },
-  { faza: 'Final', titlu: 'Grilele, lampa și conectarea', text: ['Montezi grilele de lemn peste cele două goluri de aerisire și lampa pe peretele din dreapta, deasupra băncii. Electricianul conectează soba și lampa la circuitul separat.'],
-    piese: [['GR', 2], ['LP', 1]],
-    nota: 'Conectarea sobei și a lămpii o face un electrician autorizat, pe un circuit separat.', avertisment: true },
+  { faza: 'Final', titlu: 'Grătarul de lemn', text: [
+    'Din plop faci două panouri GT de 590 × 600 mm: pe 2 rigle de 600 mm prinzi 6 șipci de 590 mm, la 12 mm una de alta, cu șuruburi inox 4 × 50 mm trecute de dedesubt.',
+    'Le așezi pe gresie, între parapet și peretele din dreapta, peste sifon. Nu le prinzi: le scoți când speli sauna și le lași să se usuce afară.'],
+    piese: [['GT', 2]], prinderi: ['24 șuruburi inox 4 × 50 mm'] },
+  { faza: 'Final', titlu: 'Grilele, lampa și conectarea', text: ['Montezi grilele de lemn peste cele două goluri de aerisire și lampa pe peretele din dreapta, deasupra băncii. Electricianul conectează soba și lampa la circuitul separat.',
+    'Pentru pornit și oprit din telefon, electricianul pune în tablou releul Shelly Pro 1 (SH), care comandă un contactor de 40 A pe circuitul sobei. Pentru lampă pune un Shelly 1 Gen3 (SL) în doza întrerupătorului, afară. Butonul de timp al sobei îl lași pornit, iar cum se leagă exact verifică electricianul în manualul Harvia.'],
+    piese: [['GR', 2], ['LP', 1], ['SH', 1], ['SL', 1]],
+    nota: 'Conectarea sobei și a lămpii o face un electrician autorizat, pe un circuit separat. Releele și contactorul nu se montează în saună, pentru că nu rezistă la căldură.', avertisment: true },
   { faza: 'Final', titlu: 'Prima încălzire', text: ['Încălzești sauna o oră goală, cu ușa întredeschisă, ca să dispară mirosul de nou al sobei și al lemnului. Apoi o aerisești și e gata de folosit.'] }
 ];
 
 export const TITLU = 'Saună 2 × 2 m sub foișor';
-export const SUBTITLU = 'Interior 1,65 × 1,65 m, înălțime 2,02 m. Exterior aprox. 2,32 m înălțime. Sobă Harvia Vega BC60.';
+export const SUBTITLU = 'Interior 1,65 × 1,65 m, înălțime aprox. 1,99 m de la gresie. Exterior aprox. 2,32 m înălțime. Sobă Harvia Vega BC60.';

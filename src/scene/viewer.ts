@@ -8,7 +8,7 @@ import { PASI } from '../data/pasi';
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 const easeIO = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
-const CUT_FROM = 15; // de la pasul 16 se ascunde automat peretele din față și placa de sus
+const CUT_FROM = 17; // de la pasul 18 se ascunde automat peretele din față și placa de sus
 
 // ---------- cronologie simplă pentru animații ----------
 interface Seg { t0: number; dur: number; f?: (p: number) => void; start?: () => void; end?: () => void; s?: boolean; d?: boolean }
@@ -344,7 +344,7 @@ export class Viewer {
       if (Math.abs(th) > 0.55) sph.theta = 0.32 * Math.sign(th || 1);
       sph.phi = Math.min(Math.max(cur.phi, 1.12), 1.3);
     }
-    if (i <= 5) sph.phi = Math.min(sph.phi, Math.PI / 2 - 0.55);
+    if (i <= 6) sph.phi = Math.min(sph.phi, Math.PI / 2 - 0.55);
     this.tweenCam(target, sph, 0.9);
   }
   private tweenCam(t: THREE.Vector3, s: THREE.Spherical, dur: number) {

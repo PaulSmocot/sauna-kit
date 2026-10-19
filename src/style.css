@@ -62,6 +62,8 @@ input[type=range]{flex:1;min-width:140px;height:42px;accent-color:var(--accent)}
 .cname{font-weight:600;margin:2px 44px 6px 0}
 .card dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0 0 4px;font-size:14.5px}
 .card dt{color:var(--muted)} .card dd{margin:0}
+.buybtn{display:flex;align-items:center;justify-content:center;min-height:46px;margin:6px 0 2px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-weight:700;text-decoration:none;font-size:15.5px}
+.cshop{font-size:14px;margin:4px 0}
 .linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:10px 0;min-height:44px;cursor:pointer;text-align:left;font-size:15px}
 .iconbtn{width:46px;height:46px;display:grid;place-items:center;border-radius:12px;border:0;background:transparent;color:var(--ink);cursor:pointer}
 
