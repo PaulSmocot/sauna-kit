@@ -176,3 +176,12 @@ tr.checked td:not(.cb){color:var(--muted);text-decoration:line-through;text-deco
   .app.lists .stage{flex-basis:30%;min-height:180px}
   .app.lists .hint{display:none}
 }
+
+.costbox{background:var(--accent-soft);border-radius:16px;padding:14px 16px;margin:4px 0 14px}
+.costlbl{font-size:14px;color:var(--muted);font-weight:600}
+.costval{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;color:var(--accent);line-height:1.15;margin:2px 0 8px}
+.costbox dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:14.5px}
+.costbox dt{font-weight:600} .costbox dd{margin:0}
+.storehead{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.storesum{font-size:14px;font-weight:600;color:var(--accent);white-space:nowrap}
+#print .costbox{background:none;border:1px solid #999;padding:8px 10px} #print .costval{color:#000;font-size:22px}

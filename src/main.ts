@@ -9,7 +9,27 @@ import { MeshInfo } from './scene/model';
 import { PASI, TITLU, SUBTITLU } from './data/pasi';
 import { PIESE } from './data/piese';
 import { TAIERE, INTRO_TAIERE, NOTA_TAIERE } from './data/taiere';
-import { MAGAZINE, INTRO_CUMPARATURI, NOTA_CUMPARATURI } from './data/magazine';
+import { MAGAZINE, INTRO_CUMPARATURI, NOTA_CUMPARATURI, ALTE_COSTURI, REZERVA } from './data/magazine';
+
+// ---------- costul total, calculat din lista de cumpărături ----------
+const lei = (n: number) => Math.round(n).toLocaleString('ro-RO') + ' lei';
+const sute = (n: number) => Math.round(n / 100) * 100;
+function costuri() {
+  const toate = MAGAZINE.flatMap(m => m.produse);
+  const material = toate.reduce((a, it) => a + it.cost, 0);
+  const estimat = toate.filter(it => it.estimat).reduce((a, it) => a + it.cost, 0);
+  const altMin = ALTE_COSTURI.reduce((a, c) => a + c.min, 0), altMax = ALTE_COSTURI.reduce((a, c) => a + c.max, 0);
+  const min = (material + altMin) * (1 + REZERVA), max = (material + altMax) * (1 + REZERVA);
+  return { material, estimat, min: sute(min), max: sute(max) };
+}
+function costHtml() {
+  const c = costuri();
+  return `<div class="costbox"><div class="costlbl">Cost total estimat</div><div class="costval">${lei(c.min)} – ${lei(c.max)}</div>` +
+    `<dl><dt>Materiale</dt><dd>${lei(c.material)} <span class="muted">(din care ${lei(c.estimat)} estimat)</span></dd>` +
+    ALTE_COSTURI.map(a => `<dt>${esc(a.nume)}</dt><dd>${lei(a.min)} – ${lei(a.max)} <span class="muted">· ${esc(a.nota)}</span></dd>`).join('') +
+    `<dt>Rezervă</dt><dd>${Math.round(REZERVA * 100)} % pentru neprevăzute</dd></dl></div>`;
+}
+const magTotal = (m: typeof MAGAZINE[number]) => m.produse.reduce((a, it) => a + it.cost, 0);
 import { store } from './store';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -191,11 +211,11 @@ function renderCump() {
   const total = MAGAZINE.reduce((a, m) => a + m.produse.length, 0), n = store.count('cump:');
   $('v-cumparaturi').innerHTML =
     `<div class="listhead"><span class="pill">${n} din ${total} produse cumpărate</span><button class="btn small" id="print-c">${ICON.print}<span>Printează / PDF</span></button></div>` +
-    `<p>${esc(INTRO_CUMPARATURI)}</p><p class="note">${esc(NOTA_CUMPARATURI)}</p>` +
-    MAGAZINE.map((m, mi) => `<div class="store">${esc(m.nume)}<small>${esc(m.descriere)}</small></div>` +
+    costHtml() + `<p>${esc(INTRO_CUMPARATURI)}</p><p class="note">${esc(NOTA_CUMPARATURI)}</p>` +
+    MAGAZINE.map((m, mi) => `<div class="store"><span class="storehead">${esc(m.nume)}<span class="storesum">aprox. ${lei(magTotal(m))}</span></span><small>${esc(m.descriere)}</small></div>` +
       m.produse.map((it, ii) => {
         const k = `cump:${mi}:${ii}`, on = store.get(k);
-        return `<label class="item ${on ? 'checked' : ''}"><input type="checkbox" data-k="${k}" ${on ? 'checked' : ''}><span class="itxt"><b>${esc(it.nume)}</b><span class="meta">${esc(it.cantitate)} · ${it.pret === 'neverificat' ? '<span class="unv">neverificat</span>' : esc(it.pret)}${it.nota ? '<br>' + esc(it.nota) : ''}</span>${it.link ? `<a href="${esc(it.link)}" target="_blank" rel="noopener">Pagina produsului ↗</a>` : ''}</span></label>`;
+        return `<label class="item ${on ? 'checked' : ''}"><input type="checkbox" data-k="${k}" ${on ? 'checked' : ''}><span class="itxt"><b>${esc(it.nume)}</b><span class="meta">${esc(it.cantitate)} · ${it.pret === 'neverificat' ? '' : esc(it.pret) + ' · '}<b class="${it.estimat ? 'unv' : ''}">${it.estimat ? 'estimat ' : ''}${lei(it.cost)}</b>${it.nota ? '<br>' + esc(it.nota) : ''}</span>${it.link ? `<a href="${esc(it.link)}" target="_blank" rel="noopener">Pagina produsului ↗</a>` : ''}</span></label>`;
       }).join('')).join('') +
     `<p><button class="linkbtn" id="reset-c">Șterge bifele de cumpărături</button></p>`;
   bindChecks('v-cumparaturi', renderCump);
@@ -218,9 +238,9 @@ function printList(which: 'taiere' | 'cumparaturi') {
     h += `<h3>Piese, după cod</h3><table><thead><tr><th>Cod</th><th>Piesă</th><th>Dimensiune</th><th>Se ia din</th></tr></thead><tbody>` +
       Object.entries(PIESE).map(([c, p]) => `<tr><td><b>${esc(c)}</b></td><td>${esc(p.nume)}</td><td>${esc(p.dim)}</td><td>${esc(p.taieDin || '')}</td></tr>`).join('') + '</tbody></table>';
   } else {
-    h += `<h2>Lista de cumpărături</h2><p>${esc(INTRO_CUMPARATURI)}</p><p class="pnote">${esc(NOTA_CUMPARATURI)}</p>`;
-    h += MAGAZINE.map((m, mi) => `<h3>${esc(m.nume)}</h3><p class="pdesc">${esc(m.descriere)}</p><table><thead><tr><th></th><th>Produs</th><th>Cantitate</th><th>Preț</th><th>Note</th></tr></thead><tbody>` +
-      m.produse.map((it, ii) => `<tr><td>${box(`cump:${mi}:${ii}`)}</td><td><b>${esc(it.nume)}</b>${it.link ? `<br><span class="plink">${esc(it.link)}</span>` : ''}</td><td>${esc(it.cantitate)}</td><td>${esc(it.pret)}</td><td>${esc(it.nota)}</td></tr>`).join('') + '</tbody></table>').join('');
+    h += `<h2>Lista de cumpărături</h2>` + costHtml() + `<p>${esc(INTRO_CUMPARATURI)}</p><p class="pnote">${esc(NOTA_CUMPARATURI)}</p>`;
+    h += MAGAZINE.map((m, mi) => `<h3>${esc(m.nume)} · aprox. ${lei(magTotal(m))}</h3><p class="pdesc">${esc(m.descriere)}</p><table><thead><tr><th></th><th>Produs</th><th>Cantitate</th><th>Preț</th><th>Cost</th><th>Note</th></tr></thead><tbody>` +
+      m.produse.map((it, ii) => `<tr><td>${box(`cump:${mi}:${ii}`)}</td><td><b>${esc(it.nume)}</b>${it.link ? `<br><span class="plink">${esc(it.link)}</span>` : ''}</td><td>${esc(it.cantitate)}</td><td>${esc(it.pret)}</td><td><b>${it.estimat ? 'est. ' : ''}${lei(it.cost)}</b></td><td>${esc(it.nota)}</td></tr>`).join('') + '</tbody></table>').join('');
   }
   $('print').innerHTML = h;
   setTimeout(() => window.print(), 50);
