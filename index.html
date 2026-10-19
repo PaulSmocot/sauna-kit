@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Saună 2 × 2 m – kit de montaj 3D</title>
+  <meta name="description" content="Kit de montaj 3D pentru o saună de 2 × 2 m: 33 de pași animați, listă de tăiere și listă de cumpărături. Merge offline.">
+  <meta name="theme-color" content="#2E6B57">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Saună">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+</head>
+<body>
+  <div class="app" id="app">
+    <section class="stage" id="stage" aria-label="Modelul 3D al saunei">
+      <div class="labels" id="labels"></div>
+      <div class="tooltip" id="tooltip"></div>
+      <div class="tools" id="tools" role="toolbar" aria-label="Unelte pentru modelul 3D"></div>
+      <div class="secbar" id="secbar" hidden></div>
+      <div class="card" id="card" hidden></div>
+      <div class="hint" id="hint">Trage ca să rotești · ciupește pentru zoom · atinge o piesă</div>
+    </section>
+    <section class="panel">
+      <header class="top">
+        <div class="top-text">
+          <h1 id="title"></h1>
+          <p id="subtitle"></p>
+        </div>
+        <button class="iconbtn" id="theme" aria-label="Schimbă tema"></button>
+      </header>
+      <div class="progress" id="progress"><div class="bar"><i id="bar"></i></div><span id="progtext"></span></div>
+      <nav class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="montaj" aria-selected="true">Montaj</button>
+        <button class="tab" role="tab" data-tab="taiere" aria-selected="false">Tăiere</button>
+        <button class="tab" role="tab" data-tab="cumparaturi" aria-selected="false">Cumpărături</button>
+      </nav>
+      <div class="scroll" id="scroll">
+        <div id="v-montaj">
+          <div class="ios-tip" id="iostip" hidden></div>
+          <div class="strip" id="strip" aria-label="Pașii de montaj"></div>
+          <div class="body" id="step"></div>
+        </div>
+        <div id="v-taiere" class="body" hidden></div>
+        <div id="v-cumparaturi" class="body" hidden></div>
+      </div>
+      <div class="nav" id="nav">
+        <button id="prev" class="btn">‹ Înapoi</button>
+        <button id="next" class="btn primary">Pasul următor ›</button>
+      </div>
+    </section>
+  </div>
+  <div id="print" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
