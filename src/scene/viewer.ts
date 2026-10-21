@@ -8,7 +8,7 @@ import { PASI } from '../data/pasi';
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 const easeIO = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
-const CUT_FROM = 17; // de la pasul 18 se ascunde automat peretele din față și placa de sus
+const CUT_FROM = 18; // de la pasul 19 se ascunde automat peretele din față și placa de sus
 
 // ---------- cronologie simplă pentru animații ----------
 interface Seg { t0: number; dur: number; f?: (p: number) => void; start?: () => void; end?: () => void; s?: boolean; d?: boolean }

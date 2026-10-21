@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { E, FB, FT, F, FF, SFX, SFZ, HT, YJ, YT, I0, I1, CI, DX0, DX1, DY0, DY1, JX, PZ, GZ, ST } from '../data/dimensiuni';
+import { E, FB, FT, F, FF, SAPA, OX, NY, NTX, SFX, SFZ, HT, YJ, YT, I0, I1, CI, DX0, DX1, DY0, DY1, JX, PZ, GZ, ST } from '../data/dimensiuni';
 import { PASI } from '../data/pasi';
 import { makeTextures, fixBoxUV, TexSet } from './textures';
 
@@ -62,10 +62,11 @@ export const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 10);
 const EXPL: [number, number][] = [
   [0, -0.75], [0, -0.6], [0, -0.42], [0, -0.42], [0, -0.3], [0, -0.22], [0, 0],
   [0, 0], [0, 0], [0, 0], [0, 0], [0, 0.35],
-  [0.3, 0], [0.55, 0], [0.85, 0], [0, 0.75], [0, 1.0], [0, 0],
-  [0, 0], [0, 0.35], [-0.1, -0.1], [0, 0.25], [0, -0.25], [0, -0.45],
-  [-0.12, 0], [-0.22, 0], [-0.22, 0], [0, 0], [0, 0], [0, 0], [0, 0],
-  [0, 0], [0, 0], [0, 0], [0, 0.3], [0, 0], [0, 0]
+  [0.25, 0], [0.45, 0], [0.65, 0], [0.9, 0],
+  [0, 0.75], [0, 1.0], [0, 0], [0, 0], [0, 0.35], [-0.1, -0.1], [0, 0.25], [0, 0.25],
+  [0, -0.25], [0, -0.45], [-0.12, 0], [-0.22, 0], [-0.22, 0],
+  [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
+  [0, 0.3], [0, 0], [0, 0]
 ];
 
 export function wallNormal(c: THREE.Vector3): THREE.Vector3 | null {
@@ -191,9 +192,9 @@ export function buildModel(root: THREE.Group) {
     if (DX0 > u0) out.push([u0, Math.min(DX0, u1), oy0, oy1]); if (DX1 < u1) out.push([Math.max(DX1, u0), u1, oy0, oy1]);
     return out;
   }
-  function layer(d0: number, d1: number, y0: number, y1: number, key: MatKey, board?: number, gap = 0.003, walls: Wall[] = WALLS, inner = false) {
+  function layer(d0: number, d1: number, y0: number, y1: number, key: MatKey, board?: number, gap = 0.003, walls: Wall[] = WALLS, inner = false, sp?: (w: Wall) => [number, number]) {
     walls.forEach(w => {
-      const [u0, u1] = span(w, d0, d1, inner), rows: [number, number][] = [];
+      const [u0, u1] = sp ? sp(w) : span(w, d0, d1, inner), rows: [number, number][] = [];
       if (board) { for (let y = y0; y < y1 - 1e-6; y += board) rows.push([y, Math.min(y + board - gap, y1)]); } else rows.push([y0, y1]);
       rows.forEach(([ya, yb]) => { (w === 'front' ? minusDoor(u0, u1, ya, yb) : [[u0, u1, ya, yb] as [number, number, number, number]]).forEach(p => wallRect(w, p[0], p[1], p[2], p[3], d0, d1, key)); });
     });
@@ -219,6 +220,16 @@ export function buildModel(root: THREE.Group) {
     });
     const plateScrews = w === 'front' ? [0.2875, 0.6875, 0.93, 1.8875] : (() => { const a: number[] = []; for (let u = u0 + 0.25; u < u1 - 0.1; u += 0.4) a.push(u); return a; })();
     plateScrews.forEach(u => { const [x, z] = wp(w, u, 0.0875); screw(x, F + 0.052, z, 'y', tf); });
+    C('NP');
+    const ax = side ? 'z' : 'x';
+    ST[w].forEach((u, i) => {
+      const nx = ST[w][i + 1];
+      if (nx === undefined || (w === 'front' && u === 0.97)) return;
+      wallRect(w, u + 0.05, nx, NY, NY + 0.05, E, 0.1375, 'timber');
+      if (i > 0 || !side) { const [x, z] = wp(w, u - 0.002, 0.0875); screw(x, NY + 0.025, z, ax, tf, -1); }
+      const [x2, z2] = wp(w, nx + 0.052, 0.0875); screw(x2, NY + 0.025, z2, ax, tf, 1);
+      if (i === 0) { const [lx, lz] = wp(w, (u + 0.05 + nx) / 2, 0.0875); lab('NP', lx, NY + 0.1, lz, tf); }
+    });
     const mid = (u0 + u1) / 2, [lx, lz] = wp(w, mid, 0.0875);
     lab(side ? 'T3' : 'T1', lx, HT + 0.06, lz, tf);
     ST[w].forEach((u, i) => { if (i === 1) { const [x, z] = wp(w, u + 0.025, 0.0875); lab('M', x, F + 1.0, z, tf); } });
@@ -281,10 +292,12 @@ export function buildModel(root: THREE.Group) {
   B.push(() => {
     wallFrame('front');
     C('B'); wallRect('front', DX0, DX1, DY1, DY1 + 0.10, E, 0.1375, 'timber');
+    C('PR'); wallRect('front', DX0, DX1, F, DY0, E, 0.1375, 'timber');
+    lab('PR', (DX0 + DX1) / 2, DY0 + 0.05, 2 - 0.0875, 'front');
     [DY1 + 0.03, DY1 + 0.07].forEach(y => { screw(DX0 - 0.052, y, 2 - 0.0875, 'x', 'front', -1); screw(DX1 + 0.052, y, 2 - 0.0875, 'x', 'front', 1); });
     lab('B', (DX0 + DX1) / 2, DY1 + 0.05, 2 - 0.0875, 'front'); lab('T2a', 0.5, F + 0.1, 2 - 0.0875, 'front');
     tool({ tip: 'ruleta', din: V(DX0, F + 1.0, 2 - E + 0.01), la: V(DX1, F + 1.0, 2 - E + 0.01), text: 'golul ușii 720 mm', cand: 'post' });
-    tool({ tip: 'ruleta', din: V(DX1 - 0.04, F, 2 - E + 0.01), la: V(DX1 - 0.04, DY1, 2 - E + 0.01), text: '1910 mm', cand: 'post' });
+    tool({ tip: 'ruleta', din: V(DX1 - 0.04, DY0, 2 - E + 0.01), la: V(DX1 - 0.04, DY1, 2 - E + 0.01), text: '1910 mm de la prag', cand: 'post' });
     tool({ tip: 'nivela', poz: V(DX1 + 0.025, F + 1.0, 2 - E + 0.014), axa: 'y', cand: 'post' });
   });
   // 11 grinzi tavan
@@ -292,37 +305,51 @@ export function buildModel(root: THREE.Group) {
     C('G');
     GZ.forEach(z => { box(E, 2 - E, HT, YJ, z, z + 0.05, 'timber', 'ceil'); [0.0875, 1.9125].forEach(x => { screw(x - 0.012, YJ + 0.002, z + 0.025, 'y', 'ceil'); screw(x + 0.012, YJ + 0.002, z + 0.025, 'y', 'ceil'); }); });
     lab('G', 1, YJ + 0.06, GZ[1] + 0.025, 'ceil'); lab('G', 1, YJ + 0.06, GZ[2] + 0.025, 'ceil');
+    C('NT');
+    NTX.forEach(x0 => [[0.0875, 0.63], [0.68, 1.2375], [1.2875, 1.9125]].forEach(([a, b]) => {
+      box(x0, x0 + 0.05, HT, YJ, a, b, 'timber', 'ceil');
+      screw(x0 + 0.025, HT + 0.05, a - 0.052, 'z', 'ceil', -1); screw(x0 + 0.025, HT + 0.05, b + 0.052, 'z', 'ceil', 1);
+    }));
+    lab('NT', NTX[0] + 0.025, YJ + 0.06, 0.36, 'ceil');
+  });
+  // OSB pe exteriorul pereților
+  B.push(() => {
+    C('OP'); layer(E - OX, E, FB, YJ, 'osb', 1.25, 0.002);
+    WALLS.forEach(w => ST[w].forEach(u => { for (let y = FB + 0.1; y < YJ - 0.05; y += 0.3) { const [x, z] = wp(w, u + 0.025, E - OX - 0.002); screw(x, y, z, wAx(w), w === 'front' ? 'front' : '', outDir(w)); } }));
+    lab('OP', 0.5, 0.7, E - OX - 0.01); lab('OP', 2 - E + OX + 0.01, 0.7, 1.0); lab('OP', 1.5, 1.6, 2 - E + OX + 0.01, 'front');
+    tool({ tip: 'nivela', poz: V(1.0, FB + 1.25, E - OX - 0.014), axa: 'x', cand: 'post' });
   });
   // 12 membrană difuzie
   B.push(() => {
-    C('MD'); layer(0.0365, 0.0375, FB, YJ, 'membrane'); lab('MD', 1, 1.2, 0.03); lab('MD', 2 - 0.03, 1.2, 1);
+    C('MD'); layer(0.0245, 0.0255, FB, YJ, 'membrane'); lab('MD', 1, 1.2, 0.018); lab('MD', 2 - 0.018, 1.2, 1);
     const pts: [number, number, number, number, number, number][] = [];
-    [0.35, 1.0, 1.65].forEach(x => [0.55, 1.55].forEach(y => pts.push([x, y, 0.0365, 0, 0, -1])));
-    [0.6, 1.4].forEach(z => [0.8, 1.8].forEach(y => pts.push([1.9635, y, z, 1, 0, 0])));
+    [0.35, 1.0, 1.65].forEach(x => [0.55, 1.55].forEach(y => pts.push([x, y, 0.0245, 0, 0, -1])));
+    [0.6, 1.4].forEach(z => [0.8, 1.8].forEach(y => pts.push([1.9755, y, z, 1, 0, 0])));
     stapler(pts);
   });
   // 13 șipci exterioare
   B.push(() => {
     C('S1');
-    const pos: Record<Wall, number[]> = { back: [0.0375, 0.6675, 1.2975, 1.9125], left: [0.0365, 0.7675, 1.3975, 1.915], right: [0.0365, 0.7675, 1.3975, 1.915], front: [0.0375, 0.5, 0.97, 1.74, 1.9125] };
-    battens(pos, 0.0125, 0.0365, FB, YJ, 'timber');
-    WALLS.forEach(w => pos[w].forEach(u => [0.28, 0.78, 1.28, 1.78, 2.2].forEach(y => { const [x, z] = wp(w, u + 0.024, 0.0105); screw(x, y, z, wAx(w), w === 'front' ? 'front' : '', outDir(w)); })));
-    lab('S1', 0.524, 1.2, 2 - 0.025, 'front'); lab('S1', 2 - 0.025, 1.2, 0.79);
+    const pos: Record<Wall, number[]> = { back: [0.0375, 0.6675, 1.2975, 1.9125], left: [0.0245, 0.7675, 1.3975, 1.9275], right: [0.0245, 0.7675, 1.3975, 1.9275], front: [0.0375, 0.5, 0.97, 1.74, 1.9125] };
+    battens(pos, 0.0005, 0.0245, FB, YJ, 'timber');
+    WALLS.forEach(w => pos[w].forEach(u => [0.28, 0.78, 1.28, 1.78, 2.2].forEach(y => { const [x, z] = wp(w, u + 0.024, -0.0015); screw(x, y, z, wAx(w), w === 'front' ? 'front' : '', outDir(w)); })));
+    lab('S1', 0.524, 1.2, 2 - 0.013, 'front'); lab('S1', 2 - 0.013, 1.2, 0.79);
   });
   // 14 lambriu exterior + colțuri
   B.push(() => {
-    C('LE'); layer(0, 0.0125, FB, YT, 'clad', 0.088, 0.003);
+    C('LE'); layer(-OX, 0.0005, FB, YT, 'clad', 0.088, 0.003, WALLS, false, w => (w === 'back' || w === 'front' ? [0, 2] : [0.0125, 1.9875]));
     C('CL');
     ([[0, 0], [2, 0], [0, 2], [2, 2]] as [number, number][]).forEach(([cx, cz]) => {
       const sx = cx ? 1 : -1, sz = cz ? 1 : -1;
+      cx += sx * OX; cz += sz * OX;
       box(cx + sx * 0.012, cx - sx * 0.03, FB, YT, cz + sz * 0.002, cz + sz * 0.012, 'clad', cz ? 'front' : '');
       box(cx + sx * 0.002, cx + sx * 0.012, FB, YT, cz + sz * 0.012, cz - sz * 0.03, 'clad', cz ? 'front' : '');
     });
-    lab('LE', 0.5, 1.3, 2.01, 'front'); lab('LE', 2.01, 1.3, 1.2); lab('CL', 2.02, 0.6, 2.02, 'front');
+    lab('LE', 0.5, 1.3, 2.022, 'front'); lab('LE', 2.022, 1.3, 1.2); lab('CL', 2.032, 0.6, 2.032, 'front');
   });
   // 15 OSB sus
   B.push(() => {
-    C('O3'); box(0.0125, 1.9875, YJ, YT, 0.0125, 1.2625, 'osb', 'roof'); C('O4'); box(0.0125, 1.9875, YJ, YT, 1.2625, 1.9875, 'osb', 'roof');
+    C('O3'); box(0.0005, 1.9995, YJ, YT, 0.0005, 1.2505, 'osb', 'roof'); C('O4'); box(0.0005, 1.9995, YJ, YT, 1.2505, 1.9995, 'osb', 'roof');
     GZ.forEach(z => { for (let x = 0.1; x < 1.95; x += 0.2) screw(x, YT + 0.002, z + 0.025, 'y', 'roof'); });
     [0.0875, 1.9125].forEach(x => [0.35, 0.95, 1.55].forEach(z => screw(x, YT + 0.002, z, 'y', 'roof')));
     lab('O3', 1, YT + 0.06, 0.64, 'roof'); lab('O4', 1, YT + 0.06, 1.63, 'roof');
@@ -330,18 +357,18 @@ export function buildModel(root: THREE.Group) {
   // lambriu deasupra
   B.push(() => {
     const y1 = YT + 0.024, y2 = y1 + 0.0125;
-    C('S4'); GZ.forEach(z => { box(0.0125, 1.9875, YT, y1, z + 0.001, z + 0.049, 'timber', 'roof'); for (let x = 0.2; x < 1.9; x += 0.4) screw(x, y1 + 0.002, z + 0.025, 'y', 'roof'); });
-    C('LS'); for (let x = 0.0125; x < 1.9875 - 1e-6; x += 0.088) box(x, Math.min(x + 0.086, 1.9875), y1, y2, 0.0125, 1.9875, 'clad', 'roof');
+    C('S4'); GZ.forEach(z => { box(0.005, 1.995, YT, y1, z + 0.001, z + 0.049, 'timber', 'roof'); for (let x = 0.2; x < 1.9; x += 0.4) screw(x, y1 + 0.002, z + 0.025, 'y', 'roof'); });
+    C('LS'); for (let x = 0.0005; x < 1.9995 - 1e-6; x += 0.088) box(x, Math.min(x + 0.086, 1.9995), y1, y2, 0.0025, 1.9975, 'clad', 'roof');
     C('BS');
-    box(0, 2, YT, YT + 0.04, 0, 0.0125, 'clad', 'roof'); box(0, 2, YT, YT + 0.04, 1.9875, 2, 'clad', 'roof');
-    box(0, 0.0125, YT, YT + 0.04, 0.0125, 1.9875, 'clad', 'roof'); box(1.9875, 2, YT, YT + 0.04, 0.0125, 1.9875, 'clad', 'roof');
+    box(-OX, 2 + OX, YT, YT + 0.04, -OX, 0.0005, 'clad', 'roof'); box(-OX, 2 + OX, YT, YT + 0.04, 1.9995, 2 + OX, 'clad', 'roof');
+    box(-OX, 0.0005, YT, YT + 0.04, 0.0005, 1.9995, 'clad', 'roof'); box(1.9995, 2 + OX, YT, YT + 0.04, 0.0005, 1.9995, 'clad', 'roof');
     lab('LS', 1, y2 + 0.06, 1, 'roof'); lab('S4', 0.25, y2 + 0.05, GZ[0] + 0.025, 'roof'); lab('BS', 1, YT + 0.08, 2.01, 'roof');
   });
   // 16 electric + aerisire
   B.push(() => {
     const T = 0.018;
     C('CB');
-    box(-0.06, -0.002, 0.9, 1.06, 0.3, 0.42, 'vent');
+    box(-0.072, -0.014, 0.9, 1.06, 0.3, 0.42, 'vent');
     box(-0.01, 0.096, 0.97, 0.97 + T, 0.35, 0.35 + T, 'cable');
     box(0.078, 0.096, F + 0.35, 0.97 + T, 0.35, 0.35 + T, 'cable');
     box(0.078, 0.096, F + 0.35, F + 0.35 + T, 0.35, 1.45, 'cable');
@@ -353,8 +380,8 @@ export function buildModel(root: THREE.Group) {
     box(1.904, 1.922, F + 1.8, HT - 0.08, 0.982, 1.0, 'cable');
     box(1.83, 1.922, F + 1.8, F + 1.8 + T, 0.982, 1.0, 'cable');
     C('GA');
-    box(-0.012, 0.18, F + 0.06, F + 0.18, 1.71, 1.81, 'vent');
-    box(1.82, 2.012, F + 0.74, F + 0.86, 0.3, 0.45, 'vent');
+    box(-0.024, 0.18, F + 0.06, F + 0.18, 1.71, 1.81, 'vent');
+    box(1.82, 2.024, F + 0.74, F + 0.86, 0.3, 0.45, 'vent');
     lab('CB', 0.09, F + 0.45, 1.0); lab('GA', 0.1, F + 0.25, 1.76); lab('GA', 1.9, F + 0.95, 0.375);
   });
   // 17 vată pereți
@@ -370,17 +397,34 @@ export function buildModel(root: THREE.Group) {
     [0.6, 1.4].forEach(z => pts.push([0.139, 1.2, z, 1, 0, 0]));
     stapler(pts);
   });
-  // pardoseala: fibrociment, hidroizolație, gresie, sifon
+  // șapa de pantă
   B.push(() => {
-    C('FC'); box(I0, I1, F, F + 0.01, I0, I0 + 1.25, 'cement'); box(I0, I1, F, F + 0.01, I0 + 1.25, I1, 'cement');
-    for (let x = I0 + 0.1; x < I1 - 0.05; x += 0.2) for (let z = I0 + 0.1; z < I1 - 0.05; z += 0.2) screw(x, F + 0.012, z, 'y');
-    C('FP'); layer(0.139, 0.149, F + 0.01, F + 0.11, 'cement', undefined, 0, WALLS, true);
-    C('HI'); box(I0, I1, F + 0.01, F + 0.0185, I0, I1, 'hidro');
+    C('SF'); box(SFX - 0.06, SFX + 0.06, F - 0.07, F + 0.015, SFZ - 0.06, SFZ + 0.06, 'pipe');
+    C('FL'); box(I0, I1, F, F + 0.0008, I0, I1, 'membrane');
+    C('GH');
+    box(I0, I1, F + 0.001, F + SAPA - 0.001, I0, I0 + 0.048, 'timber'); box(I0, I1, F + 0.001, F + SAPA - 0.001, I1 - 0.048, I1, 'timber');
+    box(I0, I0 + 0.048, F + 0.001, F + SAPA - 0.001, I0 + 0.048, I1 - 0.048, 'timber'); box(I1 - 0.048, I1, F + 0.001, F + SAPA - 0.001, I0 + 0.048, I1 - 0.048, 'timber');
+    C('SP');
+    for (let x = I0 + 0.048; x < I1 - 0.048 - 1e-6; x += 0.2) for (let z = I0 + 0.048; z < I1 - 0.048 - 1e-6; z += 0.2) {
+      const x1 = Math.min(x + 0.2, I1 - 0.048), z1 = Math.min(z + 0.2, I1 - 0.048), cx = (x + x1) / 2 - SFX, cz = (z + z1) / 2 - SFZ;
+      const t = Math.min(1, Math.hypot(cx, cz) / 0.9);   // de la 15 mm la sifon la 25 mm spre pereți
+      const top = F + 0.015 + t * (SAPA - 0.015);
+      if (Math.abs(cx) < 0.07 && Math.abs(cz) < 0.07) continue;
+      box(x, x1, F + 0.001, top, z, z1, 'cement');
+    }
+    lab('SP', 1.35, F + 0.08, 0.7); lab('SF', SFX, F + 0.09, SFZ); lab('GH', 0.25, F + 0.07, 1.0); lab('FL', 1.6, F + 0.05, 1.7);
+    tool({ tip: 'ruleta', din: V(I0 + 0.048, F + SAPA + 0.003, SFZ), la: V(SFX - 0.06, F + 0.018, SFZ), text: 'pantă: 25 mm la perete → 15 mm la sifon', cand: 'post' });
+  });
+  // hidroizolație și gresie
+  B.push(() => {
+    C('FP'); layer(0.139, 0.149, F + SAPA, F + SAPA + 0.1, 'cement', undefined, 0, WALLS, true);
+    C('HI'); box(I0, I1, F + SAPA, F + SAPA + 0.0025, I0, I1, 'hidro');
+    layer(0.149, 0.151, F + SAPA, F + SAPA + 0.1, 'hidro', undefined, 0, WALLS, true);
     C('GS');
     for (let x = I0; x < I1 - 1e-6; x += 0.3) for (let z = I0; z < I1 - 1e-6; z += 0.6)
-      box(x + 0.0015, Math.min(x + 0.3, I1) - 0.0015, F + 0.0185, FF, z + 0.0015, Math.min(z + 0.6, I1) - 0.0015, 'tile');
+      box(x + 0.0015, Math.min(x + 0.3, I1) - 0.0015, F + SAPA + 0.0025, FF, z + 0.0015, Math.min(z + 0.6, I1) - 0.0015, 'tile');
     C('SF'); box(SFX - 0.0525, SFX + 0.0525, FF, FF + 0.002, SFZ - 0.0525, SFZ + 0.0525, 'stove');
-    lab('GS', 1.35, FF + 0.06, 0.6); lab('SF', SFX, FF + 0.07, SFZ); lab('FP', 1.0, F + 0.14, 0.16);
+    lab('GS', 1.35, FF + 0.06, 0.6); lab('SF', SFX, FF + 0.07, SFZ); lab('FP', 1.0, FF + 0.12, 0.16); lab('HI', 0.4, FF + 0.1, 0.16);
     tool({ tip: 'nivela', poz: V(1.3, FF + 0.0175, 1.0), axa: 'x', cand: 'post' });
   });
   // 20 șipci tavan
@@ -439,13 +483,13 @@ export function buildModel(root: THREE.Group) {
   // 29 ușa
   B.push(() => {
     C('U');
-    box(1.03, 1.07, F, F + 1.90, 1.84, 1.93, 'frame'); box(1.69, 1.73, F, F + 1.90, 1.84, 1.93, 'frame'); box(1.03, 1.73, F + 1.86, F + 1.90, 1.84, 1.93, 'frame');
-    box(1.07, 1.69, F + 0.01, F + 1.86, 1.88, 1.888, 'glass');
-    box(1.10, 1.125, F + 0.85, F + 1.2, 1.888, 1.93, 'bench'); box(1.10, 1.125, F + 0.85, F + 1.2, 1.84, 1.88, 'bench');
-    ([[1.0, 1.03], [1.73, 1.76]] as [number, number][]).forEach(([a, b]) => { box(a, b, F, F + 1.93, I1 - 0.01, I1, 'lamb'); box(a, b, F, F + 1.93, 2, 2.01, 'clad'); });
-    box(1.0, 1.76, F + 1.90, F + 1.93, I1 - 0.01, I1, 'lamb'); box(1.0, 1.76, F + 1.90, F + 1.93, 2, 2.01, 'clad');
-    lab('U', 1.38, F + 1.2, 1.95);
-    tool({ tip: 'nivela', poz: V(1.05, F + 1.0, 1.945), axa: 'y', cand: 'post' });
+    box(1.03, 1.07, DY0, DY0 + 1.90, 1.84, 1.93, 'frame'); box(1.69, 1.73, DY0, DY0 + 1.90, 1.84, 1.93, 'frame'); box(1.03, 1.73, DY0 + 1.86, DY0 + 1.90, 1.84, 1.93, 'frame');
+    box(1.07, 1.69, DY0 + 0.01, DY0 + 1.86, 1.88, 1.888, 'glass');
+    box(1.10, 1.125, DY0 + 0.85, DY0 + 1.2, 1.888, 1.93, 'bench'); box(1.10, 1.125, DY0 + 0.85, DY0 + 1.2, 1.84, 1.88, 'bench');
+    ([[1.0, 1.03], [1.73, 1.76]] as [number, number][]).forEach(([a, b]) => { box(a, b, FF, DY0 + 1.93, I1 - 0.01, I1, 'lamb'); box(a, b, DY0, DY0 + 1.93, 2 + OX, 2 + OX + 0.01, 'clad'); });
+    box(1.0, 1.76, DY0 + 1.90, DY0 + 1.93, I1 - 0.01, I1, 'lamb'); box(1.0, 1.76, DY0 + 1.90, DY0 + 1.93, 2 + OX, 2 + OX + 0.01, 'clad');
+    lab('U', 1.38, DY0 + 1.2, 1.96);
+    tool({ tip: 'nivela', poz: V(1.05, DY0 + 1.0, 1.945), axa: 'y', cand: 'post' });
   });
   // 30 soba
   B.push(() => {
